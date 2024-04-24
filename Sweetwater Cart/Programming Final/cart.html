@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Your Cart</title>
+</head>
+<body>
+
+    <div id="header">
+        <h1>Your Cart</h1>
+    </div>
+
+    <div id="cart">
+        <!-- Cart items will be displayed here -->
+    </div>
+
+    <div id="subtotal">
+        <p>Subtotal: $<span id="subtotalAmount">0.00</span></p>
+    </div>
+
+    <div id="checkout-buttons">
+        <button class="checkout-button">Checkout</button>
+        <button class="keep-shopping-button" onclick="goToShopPage()">Keep Shopping</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            displayCart();
+        });
+
+        function displayCart() {
+            var cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+            var subtotal = 0;
+
+            for (const [index, item] of cartItems.entries()) {
+                const cartItem = `
+                    <div class="cart-item" data-index="${index}">
+                        <img src="${item.image}" alt="${item.productName}">
+                        <div class="cart-item-info">
+                            <h3>${item.productName}</h3>
+                            <p class="cart-item-description">${item.description}</p>
+                            <p>Price: $${item.price.toFixed(2)}</p>
+                            <label for="quantity-${index}">Quantity:</label>
+                            <input type="number" id="quantity-${index}" class="quantity-input" value="${item.quantity}" min="1">
+                            <button class="delete-item">Delete</button>
+                        </div>
+                    </div>
+                `;
+                $('#cart').append(cartItem);
+                subtotal += item.price * item.quantity;
+            }
+
+            $('#subtotalAmount').text(subtotal.toFixed(2));
+        }
+
+        $(document).on('click', '.delete-item', function () {
+            var index = $(this).closest('.cart-item').data('index');
+            var cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+            cartItems.splice(index, 1);
+            localStorage.setItem('cartItems', JSON.stringify(cartItems));
+            $(this).closest('.cart-item').remove();
+            updateSubtotal();
+        });
+
+        $(document).on('change', '.quantity-input', function () {
+            var index = $(this).closest('.cart-item').data('index');
+            var newQuantity = parseInt($(this).val());
+            changeQuantity(index, newQuantity);
+            updateSubtotal();
+        });
+
+        function updateSubtotal() {
+            var cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+            var subtotal = 0;
+            for (const item of cartItems) {
+                subtotal += item.price * item.quantity;
+            }
+            $('#subtotalAmount').text(subtotal.toFixed(2));
+        }
+
+        function goToShopPage() {
+            window.location.href = 'shop.html';
+        }
+
+        function changeQuantity(index, newQuantity) {
+            var cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+            cartItems[index].quantity = newQuantity;
+            localStorage.setItem('cartItems', JSON.stringify(cartItems));
+        }
+    </script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+

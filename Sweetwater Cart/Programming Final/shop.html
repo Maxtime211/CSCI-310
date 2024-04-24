@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Shop</title>
+</head>
+<body>
+
+    <div id="header">
+        <h1>Shop</h1>
+    </div>
+
+    <div id="items">
+        <!-- Shop items will be displayed here -->
+    </div>
+
+    <button id="goToCartBtn">Go to Cart</button>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            displayItems();
+
+            $('#goToCartBtn').click(function () {
+                window.location.href = 'cart.html';
+            });
+
+            // Event listener for changing quantity input
+            $('#items').on('change', '.quantity-input', function () {
+                var itemIndex = $(this).closest('.shop-item').data('index');
+                var newQuantity = parseInt($(this).val());
+                changeQuantity(itemIndex, newQuantity);
+            });
+
+            // Event listener for "Add to Cart" button
+            $('#items').on('click', '.add-to-cart', function () {
+                var itemData = JSON.parse($(this).attr('data-item'));
+                addToCart(itemData);
+            });
+        });
+
+        function displayItems() {
+            var items = [
+                {
+                    image: "https://media.sweetwater.com/images/items/120/SM57-medium.jpg",
+                    url: "https://www.sweetwater.com/store/detail/SM57",
+                    manufacturer: "Shure",
+                    productName: "SM57 Cardioid Dynamic Instrument Microphone",
+                    itemid: "SM57",
+                    price: 99.0,
+                    description: "Dynamic Microphone with Cardioid Pickup Pattern, 40Hz-15kHz Frequency Response, Low Impedance, Includes Stand Adapter, and Zippered Carrying Case",
+                    available: 9
+                },
+                // Add other items here
+            ];
+
+            for (const [index, item] of items.entries()) {
+                const shopItem = `
+                    <div class="shop-item" data-index="${index}">
+                        <img src="${item.image}" alt="${item.productName}">
+                        <div class="shop-item-info">
+                            <h3>${item.productName}</h3>
+                            <p class="shop-item-description">${item.description}</p>
+                            <p>Price: $${item.price.toFixed(2)}</p>
+                            <label for="quantity-${index}">Quantity:</label>
+                            <input type="number" id="quantity-${index}" class="quantity-input" value="1" min="1">
+                            <button class="add-to-cart" data-item='${JSON.stringify(item)}'>Add to Cart</button>
+                        </div>
+                    </div>
+                `;
+                $('#items').append(shopItem);
+            }
+        }
+
+        function changeQuantity(index, newQuantity) {
+            var cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+            // Check if the index is valid
+            if (index >= 0 && index < cartItems.length) {
+                // Update the quantity of the item at the specified index
+                cartItems[index].quantity = newQuantity;
+                // Store the updated cart items in localStorage
+                localStorage.setItem('cartItems', JSON.stringify(cartItems));
+            }
+        }
+
+function addToCart(item) {
+    var cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+    
+    // Find the input field associated with the item
+    var quantityInput = $('#quantity-' + item.itemid);
+    // Retrieve the quantity from the input field
+    var quantity = parseInt(quantityInput.val());
+
+    // If the retrieved quantity is invalid or not provided, default to 1
+    if (!quantity || isNaN(quantity) || quantity < 1) {
+        quantity = 1;
+    }
+
+    // Update the quantity of the item being added
+    item.quantity = quantity;
+
+    // Check if the item already exists in the cart
+    var existingItem = cartItems.find(function(cartItem) {
+        return cartItem.itemid === item.itemid;
+    });
+
+    if (existingItem) {
+        // If the item already exists, update its quantity
+        existingItem.quantity += item.quantity;
+    } else {
+        // If the item does not exist, add it to the cart
+        cartItems.push(item);
+    }
+
+    // Store the updated cart items in localStorage
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+
+    // Redirect to the cart page after adding to cart
+    window.location.href = 'cart.html';
+}
+
+
+
+    </script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
